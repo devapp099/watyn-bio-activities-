@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <title>نشاط تفاعلي — الدرس 1: الخلايا</title>
+  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
+  <style>
+    :root{
+      --bg:#0f172a; --card:#111827; --muted:#94a3b8; --text:#e2e8f0;
+      --primary:#22d3ee; --primary-2:#06b6d4; --accent:#f472b6;
+      --success:#34d399; --warn:#fde047; --danger:#fb7185; --ring:rgba(34,211,238,.5);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:
+        radial-gradient(1200px 600px at 90% -10%, rgba(34,211,238,.08), transparent 60%),
+        radial-gradient(800px 400px at -10% 110%, rgba(244,114,182,.06), transparent 60%),
+        var(--bg);
+      color:var(--text); font-family:"Cairo", system-ui, sans-serif; line-height:1.7; letter-spacing:.2px;
+    }
+    .wrap{max-width:1100px; margin-inline:auto; padding:24px}
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 22px;
+      border:1px solid rgba(255,255,255,.06);
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border-radius:20px; backdrop-filter: blur(6px); position:sticky; top:16px; z-index:10;
+    }
+    .brand{display:flex; align-items:center; gap:12px}
+    .logo{width:42px; height:42px; border-radius:12px;
+      background: conic-gradient(from 200deg, var(--primary), var(--accent));
+      box-shadow: 0 8px 24px rgba(34,211,238,.25);
+    }
+    .title{font-weight:900; font-size:clamp(20px,3vw,28px)}
+    .subtitle{font-weight:700; font-size:clamp(14px,2vw,16px); color:var(--muted)}
+    .pill{border:1px solid rgba(255,255,255,.08); padding:10px 14px; border-radius:999px;
+      display:flex; align-items:center; gap:10px; font-weight:700; color:var(--primary);
+      background: rgba(34,211,238,.06);
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px; padding:22px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    h1{font-size:clamp(28px,4vw,40px); margin:0 0 6px; font-weight:900}
+    h2{font-size:clamp(18px,3vw,22px); margin:10px 0 14px; font-weight:800; color:var(--primary)}
+    p.lead{color:var(--muted); font-size:clamp(15px,2.4vw,18px); margin-top:0}
+    .grid{display:grid; gap:16px}
+    @media (min-width: 840px){ .grid-2{grid-template-columns:1fr 1fr} .grid-3{grid-template-columns:repeat(3,1fr)} }
+    .btn{
+      all:unset; cursor:pointer; padding:14px 18px; border-radius:16px; font-weight:800;
+      border:1px solid rgba(255,255,255,.06);
+      background:linear-gradient(180deg, rgba(34,211,238,.15), rgba(34,211,238,.08));
+      color:var(--text);
+      box-shadow: 0 8px 24px rgba(34,211,238,.18);
+      transition: transform .12s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .btn:hover{ transform: translateY(-2px); box-shadow: 0 12px 30px rgba(34,211,238,.25) }
+    .btn-ghost{ all:unset; cursor:pointer; padding:12px 14px; border-radius:14px; font-weight:800; color:var(--muted);
+      border:1px dashed rgba(255,255,255,.12); }
+    .pulse{ position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+      background: radial-gradient(600px 200px at 70% 0%, rgba(34,211,238,.08), transparent 60%); filter: blur(10px); }
+    .q{ display:flex; flex-direction:column; gap:12px; padding:16px; border-radius:16px; background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06) }
+    .choices{display:grid; gap:10px}
+    .choice{ display:flex; align-items:center; gap:10px; padding:12px 14px; border:1px solid rgba(255,255,255,.08);
+      border-radius:14px; background:rgba(0,0,0,.18); cursor:pointer; user-select:none;
+      transition:transform .1s ease, background .2s ease, border .2s ease; }
+    .choice:hover{ transform: translateX(-2px); background:rgba(255,255,255,.10) }
+    .choice.correct{ border-color: rgba(52,211,153,.7); background: rgba(52,211,153,.10) }
+    .choice.wrong{ border-color: rgba(251,113,133,.7); background: rgba(251,113,133,.10) }
+    footer{ margin-top:34px; padding:18px; border-top:1px solid rgba(255,255,255,.08);
+      color:var(--muted); font-size:14px; display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; }
+    .credit{color:var(--text); font-weight:800}
+    a.card-link{ display:block; text-decoration:none; color:inherit }
+  </style>
+
+</head>
+<body>
+  <div class="wrap">
+    <header class="card" data-aos="fade-down">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <div class="title">نشاط تفاعلي — الدرس 1: الخلايا</div>
+          <div class="subtitle" id="studentMeta">مرحبًا! لنبدأ…</div>
+        </div>
+      </div>
+      <div class="pill"><span>💡</span><span>جرّب ثم تعلّم!</span></div>
+    </header>
+
+    <section class="card" style="margin-top:18px; position:relative" data-aos="zoom-in">
+      <div class="pulse"></div>
+      <h1>أهداف الدرس</h1>
+      <p class="lead">تمييز الخلايا النباتية والحيوانية وتحديد العُضيّات ووظائفها.</p>
+      <ul>
+        <li>التمييز بين جدار الخلية والغشاء الخلوي.</li><li>تحديد وظيفة النواة والميتوكندريا والبلاستيدات.</li><li>المقارنة بين الخلايا النباتية والحيوانية.</li>
+      </ul>
+      <div style="display:flex; gap:10px; flex-wrap:wrap">
+        <button id="btnStart" class="btn">ابدأ النشاط</button>
+        <button class="btn-ghost" id="btnAudioTest">🔊 جرّب الصوت</button>
+        <a class="btn-ghost" href="../index.html">← العودة للصفحة الرئيسية</a>
+      </div>
+    </section>
+
+    <section id="quiz" class="card" style="margin-top:16px; display:none" data-aos="fade-up">
+      <h2>الأسئلة</h2>
+      
+      <article class="q" data-qid="q1">
+        <div><strong>1) أي تركيب يوجد في الخلايا النباتية فقط؟</strong></div>
+        <div class="choices">
+          <div class="choice" data-correct=false>الميتوكوندريا</div>
+<div class="choice" data-correct=true>الجدار الخلوي</div>
+<div class="choice" data-correct=false>الغشاء الخلوي</div>
+<div class="choice" data-correct=false>السيتوبلازم</div>
+        </div>
+      </article>
+
+      <article class="q" data-qid="q2">
+        <div><strong>2) ما الوظيفة الأساسية للنواة؟</strong></div>
+        <div class="choices">
+          <div class="choice" data-correct=true>التحكم في أنشطة الخلية واحتواء الـDNA</div>
+<div class="choice" data-correct=false>التمثيل الضوئي</div>
+<div class="choice" data-correct=false>تخزين الماء والأملاح</div>
+<div class="choice" data-correct=false>بناء الجدار الخلوي</div>
+        </div>
+      </article>
+
+      <article class="q" data-qid="q3">
+        <div><strong>3) اختر العبارة الصحيحة:</strong></div>
+        <div class="choices">
+          <div class="choice" data-correct=false>الخلايا الحيوانية تحتوي جدارًا خلويًا</div>
+<div class="choice" data-correct=true>الخلايا النباتية تحتوي فجوة عصارية كبيرة وبلاستيدات</div>
+<div class="choice" data-correct=false>الخلايا النباتية بلا نواة</div>
+<div class="choice" data-correct=false>الخلايا الحيوانية تقوم بالتمثيل الضوئي</div>
+        </div>
+      </article>
+      <div style="display:flex; gap:10px; margin-top:8px">
+        <button id="btnSubmit" class="btn">إنهاء النشاط</button>
+        <button id="btnReset" class="btn-ghost">إعادة تعيين</button>
+      </div>
+    </section>
+
+    <footer class="card" data-aos="fade-up" data-aos-delay="50">
+      <div><span class="credit">مصمم النشاط: الطالبة الوتين بنت أحمد الضامرية</span> — مدرسة عاتكة بنت زيد — تحت إشراف الأستاذة نوال</div>
+      <div>© انشطة تعليمية الوتين</div>
+    </footer>
+  </div>
+
+  <script>
+    AOS.init({ duration: 700, once: true });
+
+    const sfx = {
+      correct: new Howl({ src:['https://cdn.jsdelivr.net/gh/naptha/tiny-sound@master/audio/coin.mp3'], volume:.45 }),
+      wrong:   new Howl({ src:['https://cdn.jsdelivr.net/gh/naptha/tiny-sound@master/audio/error.mp3'], volume:.45 }),
+      done:    new Howl({ src:['https://cdn.jsdelivr.net/gh/naptha/tiny-sound@master/audio/levelup.mp3'], volume:.50 })
+    };
+
+    const el = {
+      start: document.getElementById('btnStart'),
+      audioTest: document.getElementById('btnAudioTest'),
+      quiz: document.getElementById('quiz'),
+      submit: document.getElementById('btnSubmit'),
+      reset: document.getElementById('btnReset'),
+      meta: document.getElementById('studentMeta')
+    };
+
+    const storageKey = "watyn_bio_student";
+    function getStudent(){
+      try{ return JSON.parse(localStorage.getItem(storageKey)) || null }catch{ return null }
+    }
+    function setStudent(obj){ localStorage.setItem(storageKey, JSON.stringify(obj)); }
+
+    async function askStudent(){
+      const { value: formValues } = await Swal.fire({
+        title: 'مرحبًا 👋',
+        html:
+          `<div style="text-align:right">
+            <div style="margin-bottom:8px;font-weight:700">أدخل بياناتك لبدء النشاط:</div>
+            <input id="swal-name" class="swal2-input" placeholder="اسم الطالب/ـة">
+            <input id="swal-class" class="swal2-input" placeholder="الصف (مثال: التاسع/1)">
+          </div>`,
+        focusConfirm: false,
+        confirmButtonText: 'ابدأ',
+        confirmButtonColor: '#06b6d4',
+        showCancelButton: true,
+        cancelButtonText: 'إلغاء',
+        preConfirm: () => {
+          const name = document.getElementById('swal-name').value?.trim();
+          const klass = document.getElementById('swal-class').value?.trim();
+          if(!name || !klass){
+            Swal.showValidationMessage('يرجى إدخال الاسم والصف');
+            return false;
+          }
+          return { name, klass };
+        }
+      });
+      if(formValues){
+        setStudent(formValues);
+        updateMeta();
+        gsap.from(".card", {opacity:0, y:12, stagger:.06, duration:.55, ease:"power2.out"});
+        el.quiz.style.display = "block";
+        gsap.from("#quiz .q", {opacity:0, y:10, stagger:.08, duration:.5});
+      }
+    }
+
+    function updateMeta(){
+      const s = getStudent();
+      el.meta.textContent = s ? (`الطالب/ـة: ${s.name} — الصف: ${s.klass}`) : "مرحبًا! لنبدأ…";
+    }
+
+    document.addEventListener('click', (e)=>{
+      const choice = e.target.closest('.choice');
+      if(!choice) return;
+      const container = choice.closest('.choices');
+      container.querySelectorAll('.choice').forEach(c=> c.classList.remove('correct','wrong'));
+      if(choice.dataset.correct === "true"){
+        choice.classList.add('correct'); sfx.correct.play();
+        gsap.fromTo(choice, {scale:1}, {scale:1.03, y: -2, duration:.2, yoyo:true, repeat:1});
+      }else{
+        choice.classList.add('wrong'); sfx.wrong.play();
+        gsap.fromTo(choice, {x:0}, {x:-6, duration:.06, yoyo:true, repeat:5});
+      }
+    });
+
+    function computeScore(){
+      const blocks = Array.from(document.querySelectorAll('.q[data-qid]'));
+      let correct = 0;
+      blocks.forEach(b=>{ const sel = b.querySelector('.choice.correct'); if(sel) correct++; });
+      return { correct, total: blocks.length, percent: Math.round((correct/blocks.length)*100) };
+    }
+
+    function celebrate(){
+      const duration = 1500; const end = Date.now() + duration;
+      (function frame(){
+        confetti({ particleCount: 3, angle: 60, spread: 70, origin: { x: 0 } });
+        confetti({ particleCount: 3, angle: 120, spread: 70, origin: { x: 1 } });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      })();
+      sfx.done.play();
+    }
+
+    el.start.addEventListener('click', askStudent);
+    el.audioTest.addEventListener('click', ()=>{ sfx.correct.play(); Swal.fire({title:'تم تشغيل صوت مثال ✅', timer:1200, showConfirmButton:false}); });
+
+    el.submit.addEventListener('click', ()=>{
+      const s = getStudent();
+      const { correct, total, percent } = computeScore();
+      celebrate();
+      Swal.fire({
+        title: 'أحسنت يا بطل/ة! 🎉',
+        html: `
+          <div style="text-align:right;line-height:1.9">
+            <div><strong>الاسم:</strong> ${s?.name || '-'} </div>
+            <div><strong>الصف:</strong> ${s?.klass || '-'} </div>
+            <div><strong>درجتك:</strong> ${correct} / ${total} — <strong>${percent}%</strong></div>
+          </div>`,
+        icon: 'success',
+        confirmButtonText: 'إعادة المحاولة',
+        confirmButtonColor: '#34d399',
+        showDenyButton: true,
+        denyButtonText: 'العودة للرئيسية',
+        denyButtonColor: '#06b6d4'
+      }).then(res=>{ if(res.isConfirmed) resetQuiz(); else window.location.href='../index.html'; });
+    });
+
+    function resetQuiz(){
+      document.querySelectorAll('.choice').forEach(c=> c.classList.remove('correct','wrong'));
+      gsap.from("#quiz .q", {opacity:0, y:10, stagger:.08, duration:.45});
+      window.scrollTo({ top:0, behavior:'smooth' });
+    }
+    el.reset.addEventListener('click', resetQuiz);
+    updateMeta();
+  </script>
+</body>
+</html>
