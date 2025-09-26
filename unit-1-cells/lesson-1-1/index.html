@@ -228,7 +228,7 @@
     function answeredCount(){
       let n=0;
       document.querySelectorAll('.q').forEach(q=>{
-        if(q.querySelector('.choice.correct')) n++;
+        if(q.querySelector('.choice.correct, .choice.wrong')) n++;
       });
       return n;
     }
